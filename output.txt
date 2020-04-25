@@ -1,0 +1,7 @@
+G:: H 2 
+F:: G 2 H 1 
+E:: D 1 F 2 G 3 
+C:: D 3 E 2 
+D:: F 4 
+Time taken: 0.000100 seconds
+
