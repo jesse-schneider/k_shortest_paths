@@ -5,6 +5,8 @@
 #include<fstream>
 #include <ctime>
 #include<unordered_map>
+#include<queue>
+#include<limits>
 
 using namespace std;
 
@@ -21,8 +23,13 @@ class Node {
         void isConnection();
         void addEdge(string dest, double cost);
         void printConnections();
+        double getCost();
+        void setCost(double c);
+
+        Node(): cost{numeric_limits<double>::infinity()} {}
 
     private:
+        double cost;
         vector<string> connections;
         vector<double> connectCosts;
 };
@@ -37,8 +44,18 @@ void Node::printConnections() {
         cout << connections[i] << " " << connectCosts[i] << " ";
     }
     cout << endl;
+}
 
- }
+double Node::getCost() {
+    return cost;
+}
+
+void Node::setCost(double c) {
+    cost = c;
+}
+
+
+
 int main(int argc, char ** argv) {
 
     string filename = "input.txt";
@@ -65,9 +82,10 @@ int main(int argc, char ** argv) {
         string s, d; double cost;
         input >> s >> d >> cost;
 
+        //iterator to check if node already exists
         auto iter = nodes.find(s);
 
-        //node does not exist yet in map
+        //if node does not exist yet in map, else already exists
         if(iter == nodes.end()) {
             Node n;
             n.addEdge(d, cost);
@@ -78,22 +96,49 @@ int main(int argc, char ** argv) {
             nodes[s] = n;
         }
     }
+    //read in the source, destination and how many paths
     string source, dest; int k;
 
     input >> source >> dest >> k;
 
+    /*
+        add source node to path queue
+        check it's connections, find cheapest, add to queue
+    */
+
+   //comparator function for sorting priority upon insert 
+   struct CostCompare {
+       bool operator()(Node & nodeA, Node & nodeB) {
+           return nodeA.getCost() > nodeB.getCost();
+       }
+   };
+
+    priority_queue<Node, vector<Node>, CostCompare> queue;
+    nodes[source].setCost(0);
+    // nodes["D"].setCost(1);
+
+    queue.push(nodes[source]);
+
+    //pq testing
+    // queue.push(nodes["D"]);
+    // queue.push(nodes["G"]);
+    // queue.push(nodes["F"]);
+
+    Node s = queue.top();
+    queue.pop();
+    s.printConnections();
+    // Node s1 = queue.top();
+    // s1.printConnections();
+
+
+
     //print out list of nodes
     auto iterator = nodes.begin();
     while (iterator != nodes.end()) {
-
         cout << iterator->first << ":: ";
         iterator->second.printConnections();
         iterator++;
     }
-    
-        
-        
-
         end_t = clock();
         cpu_time_used = ((double) (end_t - start_t)) / CLOCKS_PER_SEC;
 
