@@ -23,21 +23,21 @@ class Node {
         void isConnection();
         void addEdge(string dest, double cost);
         void printConnections();
-        double getPriority();
-        void setPriority(double c);
+        double getCost();
+        void setCost(double c);
         void setName(string name);
         string getName();
+        void visit();
+        bool getVisited();
         vector<string> getConnections();
         vector<double> getConnectCosts();
-        void setPrev(Node*);
-        Node * getPrev();
 
-        Node(): priority{numeric_limits<double>::infinity()} {}
+        Node(): cost{numeric_limits<double>::infinity()}, visited{false} {}
 
     private:
-        double priority;
+        double cost;
+        bool visited;
         string name;
-        Node *prev;
         vector<string> connections;
         vector<double> connectCosts;
 };
@@ -55,12 +55,12 @@ void Node::printConnections() {
     cout << endl;
 }
 
-double Node::getPriority() {
-    return priority;
+double Node::getCost() {
+    return cost;
 }
 
-void Node::setPriority(double c) {
-    priority = c;
+void Node::setCost(double c) {
+    cost = c;
 }
 
 void Node::setName(string n) {
@@ -70,6 +70,13 @@ void Node::setName(string n) {
 string Node::getName() {
     return name;
 }
+void Node::visit() {
+    visited = true;
+}
+
+bool Node::getVisited() {
+    return visited;
+}
 
 vector<string> Node::getConnections() {
     return connections;
@@ -78,13 +85,7 @@ vector<string> Node::getConnections() {
 vector<double> Node::getConnectCosts() {
     return connectCosts;
 }
-void Node::setPrev(Node *previous) {
-    prev = previous;
-}
 
-Node * Node::getPrev() {
-    return prev;
-}
 
 int main(int argc, char ** argv) {
 
@@ -107,7 +108,6 @@ int main(int argc, char ** argv) {
 
     //for each node, initalise a node
     unordered_map<string, Node> nodes;
-    unordered_map<string, double> costToArrive;
     for(int i = 0; i < e; i++) {
         //input : G D 6
         string s, d; double cost;
@@ -121,7 +121,6 @@ int main(int argc, char ** argv) {
             Node n;
             n.addEdge(d, cost);
             n.setName(s);
-            costToArrive[s] = numeric_limits<double>::infinity(); 
             nodes[s] = n;
         } else {
             Node n(iter->second);
@@ -129,7 +128,6 @@ int main(int argc, char ** argv) {
             nodes[s] = n;
         }
     }
-
     //read in the source, destination and how many paths
     string source, dest; int k;
 
@@ -143,53 +141,40 @@ int main(int argc, char ** argv) {
    //comparator function for sorting priority upon insert 
    struct CostCompare {
        bool operator()(Node & nodeA, Node & nodeB) {
-           return nodeA.getPriority() > nodeB.getPriority();
+           return nodeA.getCost() > nodeB.getCost();
        }
    };
 
     priority_queue<Node, vector<Node>, CostCompare> queue;
-    
-    costToArrive[source] = 0;
-    costToArrive[dest] = numeric_limits<double>::infinity();
-    queue.push(nodes[source]);
+    nodes[source].setCost(0);
+     // queue.push(nodes[source]);
+
+
+    for(auto &i: nodes) {
+        queue.push(i.second);
+    }
 
     //iterate over queue
     while(!queue.empty()) {
         Node n = queue.top();
         queue.pop();
-        double currentDist;
-
-        currentDist = costToArrive[n.getName()];
-       
-       if(auto it = costToArrive.find(n.getName()) == costToArrive.end()) {
-           break;
-       }
-
+        n.printConnections();
         vector<string> connects = n.getConnections();
         vector<double> connectCs = n.getConnectCosts();
 
         for(int i = 0; i < connects.size(); i++) {
             //update costs for all connects to node
-            string neighbour = connects[i];
-            double neighCost = connectCs[i];
-            //check if we need to change distances
-            if(costToArrive[neighbour] > currentDist + neighCost) {
-                // cout << "neigbour: " << neighbour << " cost: " << currentDist + neighCost << " currentDist: " << currentDist << " neighCost: " << neighCost << endl;
-                // cout << "costToArrive[neighbour]: " << costToArrive[neighbour] << endl;
-                costToArrive[neighbour] = currentDist + neighCost;
-                nodes[neighbour].setPrev(&n);
-                nodes[neighbour].setPriority(costToArrive[neighbour]);
-                queue.push(nodes[neighbour]);
-            }
-            
+
         }
     }
 
-    for(auto &i: costToArrive) {
-        cout << " Node: " << i.first << " " << i.second << endl;
-    }
-    cout << "cost to final: " << costToArrive[dest] << endl;
-
+    //print out list of nodes
+    // auto iterator = nodes.begin();
+    // while (iterator != nodes.end()) {
+    //     cout << iterator->first << ":: ";
+    //     iterator->second.printConnections();
+    //     iterator++;
+    // }
     end_t = clock();
     cpu_time_used = ((double) (end_t - start_t)) / CLOCKS_PER_SEC;
 
@@ -198,14 +183,3 @@ int main(int argc, char ** argv) {
     input.close();
     return 0;
 }
-
-
-
-
- //print out list of nodes
-    // auto iterator = nodes.begin();
-    // while (iterator != nodes.end()) {
-    //     cout << iterator->first << ":: ";
-    //     iterator->second.printConnections();
-    //     iterator++;
-    // }
