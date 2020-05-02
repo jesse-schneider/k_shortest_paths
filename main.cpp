@@ -32,7 +32,7 @@ class Node {
         void setPrev(Node*);
         Node * getPrev();
 
-        Node(): priority{numeric_limits<double>::infinity()} {}
+        Node(): priority{numeric_limits<double>::infinity()}, prev{NULL} {}
 
     private:
         double priority;
@@ -161,7 +161,7 @@ int main(int argc, char ** argv) {
 
         currentDist = costToArrive[n.getName()];
        
-       if(auto it = costToArrive.find(n.getName()) == costToArrive.end()) {
+       if(costToArrive.find(n.getName()) == costToArrive.end()) {
            break;
        }
 

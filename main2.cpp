@@ -25,7 +25,7 @@ class Node {
         void printConnections();
         double getCost();
         void setCost(double c);
-        void setName(string name);
+        void setName(const string &name);
         string getName();
         void visit();
         bool getVisited();
@@ -63,7 +63,7 @@ void Node::setCost(double c) {
     cost = c;
 }
 
-void Node::setName(string n) {
+void Node::setName(const string &n) {
     name = n;
 }
 
