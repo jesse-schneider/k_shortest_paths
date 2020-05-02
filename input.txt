@@ -1,6 +1,6 @@
 6 9
 C D 3
-C E 2 
+C E 2
 D F 4
 E D 1
 E F 2

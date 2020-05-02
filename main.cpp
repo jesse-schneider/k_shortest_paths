@@ -29,15 +29,16 @@ class Node {
         string getName();
         vector<string> getConnections();
         vector<double> getConnectCosts();
-        void setPrev(Node*);
-        Node * getPrev();
+        void setPrev(Node *);
+        Node & getPrev();
+        void showPath();
 
-        Node(): priority{numeric_limits<double>::infinity()}, prev{NULL} {}
+        Node(): priority{numeric_limits<double>::infinity()} {}
 
     private:
         double priority;
         string name;
-        Node *prev;
+        Node *prev = NULL;
         vector<string> connections;
         vector<double> connectCosts;
 };
@@ -82,8 +83,26 @@ void Node::setPrev(Node *previous) {
     prev = previous;
 }
 
-Node * Node::getPrev() {
-    return prev;
+Node & Node::getPrev() {
+    return *prev;
+}
+
+void Node::showPath() {
+    
+    cout << name << endl;
+
+    if(prev == NULL) {
+        cout << "NULL" << endl;
+    }
+
+    // while(prev != NULL) {
+    for(int i = 0; i < 2; i++) {
+        cout << prev->getPriority() << endl;
+        // string t = prev->getName();
+        // cout << t;
+        Node *next = &prev->getPrev();
+        prev = next;
+    }
 }
 
 int main(int argc, char ** argv) {
@@ -105,18 +124,18 @@ int main(int argc, char ** argv) {
     int n, e;
     input >> n >> e;
 
-    //for each node, initalise a node
+    //for each input node, create and store
     unordered_map<string, Node> nodes;
     unordered_map<string, double> costToArrive;
     for(int i = 0; i < e; i++) {
-        //input : G D 6
+        
         string s, d; double cost;
         input >> s >> d >> cost;
 
-        //iterator to check if node already exists
+        //create iterator to find existing node
         auto iter = nodes.find(s);
 
-        //if node does not exist yet in map, else already exists
+        //if node does not exist yet in map, create it, else already exists
         if(iter == nodes.end()) {
             Node n;
             n.addEdge(d, cost);
@@ -130,17 +149,17 @@ int main(int argc, char ** argv) {
         }
     }
 
-    //read in the source, destination and how many paths
+    //read in the source, destination and k (how many paths)
     string source, dest; int k;
 
     input >> source >> dest >> k;
 
     /*
-        add source node to path queue
-        check it's connections, find cheapest, add to queue
+        perform dijkstra's algorithm to find the cheapest path
+        using a priority queue and processing nodes sequentially (nodes added to queue as explored)
     */
 
-   //comparator function for sorting priority upon insert 
+   //priority queue comparator function for sorting priority upon insert
    struct CostCompare {
        bool operator()(Node & nodeA, Node & nodeB) {
            return nodeA.getPriority() > nodeB.getPriority();
@@ -152,10 +171,13 @@ int main(int argc, char ** argv) {
     costToArrive[source] = 0;
     costToArrive[dest] = numeric_limits<double>::infinity();
     queue.push(nodes[source]);
+    string path = "";
+    vector<Node> visited;
 
     //iterate over queue
     while(!queue.empty()) {
         Node n = queue.top();
+        visited.push_back(n);
         queue.pop();
         double currentDist;
 
@@ -174,21 +196,43 @@ int main(int argc, char ** argv) {
             double neighCost = connectCs[i];
             //check if we need to change distances
             if(costToArrive[neighbour] > currentDist + neighCost) {
+                
+                path += n.getName();
+                cout << "path changed: " << n.getName() << endl;
                 // cout << "neigbour: " << neighbour << " cost: " << currentDist + neighCost << " currentDist: " << currentDist << " neighCost: " << neighCost << endl;
                 // cout << "costToArrive[neighbour]: " << costToArrive[neighbour] << endl;
                 costToArrive[neighbour] = currentDist + neighCost;
-                nodes[neighbour].setPrev(&n);
-                nodes[neighbour].setPriority(costToArrive[neighbour]);
-                queue.push(nodes[neighbour]);
+                if(nodes.find(neighbour) != nodes.end()) {
+                    nodes[neighbour].setPrev(&n);
+                    nodes[neighbour].setPriority(costToArrive[neighbour]);
+                    queue.push(nodes[neighbour]);
+                } 
             }
-            
         }
     }
-
-    for(auto &i: costToArrive) {
-        cout << " Node: " << i.first << " " << i.second << endl;
+    for(int i = 0; i < visited.size(); i++) {
+        cout << visited[i].getName() << endl;
     }
+
+    //  print out list of nodes
+    auto iterator = nodes.begin();
+    while (iterator != nodes.end()) {
+        cout << iterator->first << ":: ";
+        iterator->second.printConnections();
+        iterator++;
+    }
+
+    visited.back().showPath();
+    
+
+    //shortest path has been found, now let's find the other k-1 paths
     cout << "cost to final: " << costToArrive[dest] << endl;
+    cout << "path: " << path << endl;
+
+    /*
+        to find k-1 paths, we are going to find the smallest cost in the current path, make it unusable, and find the next path, then store it
+        continue this until all k-1 paths are found
+    */
 
     end_t = clock();
     cpu_time_used = ((double) (end_t - start_t)) / CLOCKS_PER_SEC;
@@ -202,10 +246,3 @@ int main(int argc, char ** argv) {
 
 
 
- //print out list of nodes
-    // auto iterator = nodes.begin();
-    // while (iterator != nodes.end()) {
-    //     cout << iterator->first << ":: ";
-    //     iterator->second.printConnections();
-    //     iterator++;
-    // }

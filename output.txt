@@ -1,10 +1,22 @@
- Node: D 3
- Node: C 0
- Node: E 2
- Node: F 4
- Node: G 5
- Node:  0
- Node: H 5
+path changed: C
+path changed: C
+path changed: E
+path changed: E
+path changed: F
+C
+E
+D
+F
+G
+G:: Node: G : H 2 
+F:: Node: F : G 2 H 1 
+E:: Node: E : D 1 F 2 G 3 
+C:: Node: C : D 3 E 2 
+D:: Node: D : F 4 
+G
+6.95314e-310
+6.95314e-310
 cost to final: 5
-Time taken: 0.000188 seconds
+path: CCEEF
+Time taken: 0.000000 seconds
 
