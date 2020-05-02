@@ -1,3 +1,10 @@
+ Node: D 3
+ Node: C 0
+ Node: E 2
+ Node: F 4
+ Node: G 5
+ Node:  0
+ Node: H 5
 cost to final: 5
-Time taken: 0.000136 seconds
+Time taken: 0.000155 seconds
 

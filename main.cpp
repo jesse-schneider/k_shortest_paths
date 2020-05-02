@@ -21,11 +21,11 @@ class Node {
     public:
         void findConnections();
         void isConnection();
-        void addEdge(string dest, double cost);
+        void addEdge(const string &dest, const double &cost);
         void printConnections();
         double getPriority();
-        void setPriority(double c);
-        void setName(string name);
+        void setPriority(const double &c);
+        void setName(const string &name);
         string getName();
         vector<string> getConnections();
         vector<double> getConnectCosts();
@@ -42,7 +42,7 @@ class Node {
         vector<double> connectCosts;
 };
 
-void Node::addEdge(string dest, double cost) {
+void Node::addEdge(const string &dest, const double &cost) {
     connections.push_back(dest);
     connectCosts.push_back(cost);
 }
@@ -59,11 +59,11 @@ double Node::getPriority() {
     return priority;
 }
 
-void Node::setPriority(double c) {
+void Node::setPriority(const double &c) {
     priority = c;
 }
 
-void Node::setName(string n) {
+void Node::setName(const string &n) {
     name = n;
 }
 
