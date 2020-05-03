@@ -109,7 +109,7 @@ bool Node::checkIfForbidden(const string & key) {
     return false;
 }
 
-vector<pair<string, double>> getPath(string dest, string & source, unordered_map<string, Node> nodes);
+vector<pair<string, double>> getPath(string & dest, string & source, unordered_map<string, Node> nodes);
 void findPath(unordered_map<string, double> &costToArrive, unordered_map<string, Node> &nodes, string source, string dest);
 
 int main(int argc, char ** argv) {
@@ -227,7 +227,7 @@ int getMin(vector<pair<string, double>> v) {
         }
     }
 
-vector<pair<string, double>> getPath(string dest, string & source, unordered_map<string, Node> nodes) {
+vector<pair<string, double>> getPath(string & dest, string & source, unordered_map<string, Node> nodes) {
     string prev = dest;
     vector<pair<string, double>> path;
 
