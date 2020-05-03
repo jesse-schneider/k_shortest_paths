@@ -1,12 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <utility>
-#include <string>
-#include<fstream>
-#include <ctime>
-#include<unordered_map>
-#include<queue>
-#include<limits>
 #include<bits/stdc++.h>
 
 using namespace std;
@@ -103,10 +94,6 @@ double Node::getPreviousCost(const string & destination) {
 
 void Node::addForbiddenPath(const string & f) {
     forbidden.push_back(f);
-    cout << "forbidden for " << name << endl;
-    for(auto &i: forbidden) {
-        cout << i << endl;
-    }
 }
 
 void Node::clearForbidden() {
@@ -127,18 +114,12 @@ void findPath(unordered_map<string, double> &costToArrive, unordered_map<string,
 
 int main(int argc, char ** argv) {
 
-    string filename = "input.txt";
+    string filename = "finalInput.txt";
     ifstream input;
 
     clock_t start_t, end_t;
     double cpu_time_used;
     start_t = clock();
-
-    /*
-        6 nodes, 9 edges between nodes, directed graph
-        find 3 shortest paths from C -> H: last input line Source, Destination, k
-
-    */
 
     input.open(filename);
     int n, e;
@@ -183,151 +164,48 @@ int main(int argc, char ** argv) {
     }
 
     /*
-        perform dijkstra's algorithm to find the cheapest path
+        to find k paths, we are going to perform dijkstra's algorithm to find the cheapest path
         using a priority queue and processing nodes sequentially (nodes added to queue as explored)
-    */
 
-   //priority queue comparator function for sorting priority upon insert
-//    struct CostCompare {
-//        bool operator()(Node & nodeA, Node & nodeB) {
-//            return nodeA.getPriority() > nodeB.getPriority();
-//        }
-//    };
+        when we have a working path, we find the smallest edge in the current path, we:
+             - make it forbidden
+             - find a new path without that edge
+        When we have a new path completed, we replace that edge, and repeat this proces on the new path
 
-//     priority_queue<Node, vector<Node>, CostCompare> queue;
-    
-//     costToArrive[source] = 0;
-//     costToArrive[dest] = numeric_limits<double>::infinity();
-//     queue.push(nodes[source]);
-
-//     //iterate over queue
-//     while(!queue.empty()) {
-//         Node n = queue.top();
-//         queue.pop();
-
-//         double currentDist;
-//         currentDist = costToArrive[n.getName()];
-       
-//        if(costToArrive.find(n.getName()) == costToArrive.end())
-//            break;
-
-//         vector<string> connects = n.getConnections();
-//         vector<double> connectCs = n.getConnectCosts();
-
-//         for(int i = 0; i < connects.size(); i++) {
-//             //update costs for all connects to node
-//             string neighbour = connects[i];
-//             double neighCost = connectCs[i];
-
-//             //check if we need to change distances
-//             if(costToArrive[neighbour] > currentDist + neighCost) {
-//                 // cout << "neigbour: " << neighbour << " cost: " << currentDist + neighCost << " currentDist: " << currentDist << " neighCost: " << neighCost << endl;
-//                 // cout << "costToArrive[neighbour]: " << costToArrive[neighbour] << endl;
-//                 costToArrive[neighbour] = currentDist + neighCost;
-//                 if(nodes.find(neighbour) != nodes.end()) {
-//                     nodes[neighbour].setPriority(costToArrive[neighbour]);
-//                     nodes[neighbour].setPrevious(n.getName());
-//                     queue.push(nodes[neighbour]);
-//                 } 
-//             }
-//         }
-//     }
-
-    //get the final path, and store it
-    findPath(costToArrive, nodes, source, dest);
-    vector<pair<string, double>> path = getPath(dest, source, nodes);
-
-    // while(prev != "") {
-    //     if(prev == source)
-    //         break;
-    //     auto it = nodes.find(prev);
-    //     string & next = it->second.getPrevious();
-    //     double c = nodes[next].getPreviousCost(prev);
-    //     path.push_back(make_pair(string(next), c));
-    //     prev = next;
-    // }
-
-    // reverse(path.begin(), path.end());
-
-    // for(auto &i: path) {
-    //     cout << i.first << " cost: " << i.second  << endl;
-    // }    
-
-    //shortest path has been found, now let's find the other k-1 paths
-    cout << "cost to final: " << costToArrive[dest] << endl;
-
-    vector<vector<pair<string, double>>> allPaths;
-    allPaths.push_back(path);
-
-    /*
-        to find k-1 paths, we are going to find the smallest cost in the current path, make it unusable, and find the next path, then store it
         continue this until all k-1 paths are found
     */
+   vector<vector<pair<string, double>>> allPaths;
+   pair<string, double> forbiddenEdge;
 
-   // find the minimum cost edge, remove the node previous to it before it from the posible path, move back a node and find path
-//    int minIndex = getMin(path);
-//    pair<string, double> toRemove = path.at(minIndex - 1);
-//    pair<string, double> forbiddenNode = path.at(minIndex);
+   for(int i = 0; i < k; i++) {
 
-//    cout << "toremove: " << toRemove.first << toRemove.second << endl;
-//    nodes[toRemove.first].addForbiddenPath(forbiddenNode.first);
+        //find a path using dijkstra's algorithm
+        findPath(costToArrive, nodes, source, dest);
+        vector<pair<string, double>> path = getPath(dest, source, nodes);
 
-//    for(auto &i: costToArrive) {
-//        i.second = numeric_limits<double>::infinity();
-//    }
-//    costToArrive[source] = 0;
-//    queue.push(nodes[source]);
+        //print out the cost to stdout
+        cout << costToArrive[dest];
+        if(i != (k - 1))
+            cout << ", ";
+        allPaths.push_back(path);
 
+        // find the minimum cost edge, remove the node previous to it before it from the posible path, move back a node and find path
+        int minIndex = getMin(path);
+        forbiddenEdge = path.at(minIndex - 1);
+        pair<string, double> forbiddenNode = path.at(minIndex);
 
-//    //iterate over queue
-//     while(!queue.empty()) {
-//         Node n = queue.top();
-//         queue.pop();
+        nodes[forbiddenEdge.first].clearForbidden();
+        nodes[forbiddenEdge.first].addForbiddenPath(forbiddenNode.first);
 
-//         double currentDist;
-//         currentDist = costToArrive[n.getName()];
-       
-//        if(costToArrive.find(n.getName()) == costToArrive.end())
-//            break;
-
-//         vector<string> connects = n.getConnections();
-//         vector<double> connectCs = n.getConnectCosts();
-
-//         for(int i = 0; i < connects.size(); i++) {
-//             //update costs for all connects to node
-//             string neighbour = connects[i];
-//             double neighCost = connectCs[i];
-
-//             //if forbidden, skip node
-//             if(n.checkIfForbidden(neighbour))
-//                 continue;
-
-//             //check if we need to change distances
-//             if(costToArrive[neighbour] > currentDist + neighCost) {
-//                 // cout << "neigbour: " << neighbour << " cost: " << currentDist + neighCost << " currentDist: " << currentDist << " neighCost: " << neighCost << endl;
-//                 // cout << "costToArrive[neighbour]: " << costToArrive[neighbour] << endl;
-//                 costToArrive[neighbour] = currentDist + neighCost;
-//                 if(nodes.find(neighbour) != nodes.end()) {
-//                     nodes[neighbour].setPriority(costToArrive[neighbour]);
-//                     nodes[neighbour].setPrevious(n.getName());
-//                     queue.push(nodes[neighbour]);
-//                 } 
-//             }
-//         }
-//     }
-
-//     vector<pair<string, double>> newPath = getPath(dest, source, nodes);
-
-
-
-
-
-
+        for(auto &i: costToArrive) {
+            i.second = numeric_limits<double>::infinity();
+        }
+   }
 
     end_t = clock();
     cpu_time_used = ((double) (end_t - start_t)) / CLOCKS_PER_SEC;
 
-    printf("Time taken: %f seconds\n", cpu_time_used);
+    printf("\nTime taken: %f seconds", cpu_time_used);
     cout << endl; 
     return 0;
 }
@@ -364,10 +242,6 @@ vector<pair<string, double>> getPath(string dest, string source, unordered_map<s
     }
 
     reverse(path.begin(), path.end());
-
-    for(auto &i: path) {
-        cout << i.first << " cost: " << i.second  << endl;
-    }
     return path;
 }
 
