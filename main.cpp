@@ -12,12 +12,12 @@ using namespace std;
 */
 
 int getMin(vector<pair<string, double>>);
-vector<pair<string, double>> getPath(string dest, string source, unordered_map<string, Node> nodes);
+vector<pair<string, double>> getPath(string dest, string & source, unordered_map<string, Node> nodes);
 void findPath(unordered_map<string, double> &costToArrive, unordered_map<string, Node> &nodes, string source, string dest);
 
 
 
-void main(int argc, char ** argv) {
+int main(int argc, char ** argv) {
 
     string filename = "finalInput.txt";
     ifstream input;
@@ -79,7 +79,7 @@ void main(int argc, char ** argv) {
 
         continue this until all k-1 paths are found
     */
-   
+
    vector<vector<pair<string, double>>> allPaths;
    pair<string, double> forbiddenEdge;
 
@@ -111,9 +111,9 @@ void main(int argc, char ** argv) {
     end_t = clock();
     cpu_time_used = ((double) (end_t - start_t)) / CLOCKS_PER_SEC;
 
-    printf("\nTime taken: %f seconds", cpu_time_used);
+    printf(" Time taken: %f seconds", cpu_time_used);
     cout << endl; 
-    return;
+    return 0;
 }
 
 
@@ -135,7 +135,7 @@ int getMin(vector<pair<string, double>> v) {
         }
     }
 
-vector<pair<string, double>> getPath(string dest, string source, unordered_map<string, Node> nodes) {
+vector<pair<string, double>> getPath(string dest, string & source, unordered_map<string, Node> nodes) {
     string prev = dest;
     vector<pair<string, double>> path;
 
