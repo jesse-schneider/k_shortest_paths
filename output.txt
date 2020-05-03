@@ -1,7 +1,6 @@
 C cost: 2
 E cost: 2
 F cost: 1
-H cost: 0
 cost to final: 5
-Time taken: 0.000147 seconds
+Time taken: 0.000151 seconds
 
